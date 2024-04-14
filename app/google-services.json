@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "158387387177",
+    "project_id": "quicktutor-489dc",
+    "storage_bucket": "quicktutor-489dc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:158387387177:android:8cc4496c6bf3dcfbcfd538",
+        "android_client_info": {
+          "package_name": "uk.ac.tees.mad.D3933743"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2XuAzm0UJlUBHuYN-fVfDdWFBelV6Sfg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
