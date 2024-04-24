@@ -1,7 +1,16 @@
 package uk.ac.tees.mad.D3933743.ui.theme.Util
 
-object Utils {
-    fun getScreenNameFromRoute (screenName:String) {
+import android.util.Patterns
+import android.widget.EditText
+import android.widget.Toast
 
+
+object Utils {
+    fun getScreenNameFromRoute(screenName: String) {
+
+    }
+
+    fun emailValidator(email: String): Boolean {
+        return (email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches())
     }
 }

@@ -1,8 +1,10 @@
 package uk.ac.tees.mad.D3933743.ui.theme.all_tutors.compose
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,23 +12,52 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import uk.ac.tees.mad.D3933743.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview(showBackground = true)
-fun SelectedTutor() {
+fun SelectedTutor(navController:NavController? = null) {
     Column(modifier = Modifier.fillMaxSize()) {
+
+        TopAppBar(title = {
+            Text(text = "Tutor Details", modifier = Modifier.padding(start = 16.dp))
+        },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = colorResource(id = R.color.teal_200),
+                titleContentColor = colorResource(id = R.color.white),
+                actionIconContentColor = colorResource(id = R.color.white),
+                navigationIconContentColor = colorResource(id = R.color.white)),
+            windowInsets = WindowInsets(top = 0.dp),
+            navigationIcon = {
+                Icon(
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .clickable {
+                            navController?.popBackStack()
+                        },
+                    painter = painterResource(id = R.drawable.back_arrow),
+                    contentDescription = "Back Arrow"
+                )
+            })
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
