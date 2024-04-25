@@ -12,16 +12,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import uk.ac.tees.mad.D3933743.ui.theme.Login.compose.LoginScreen
 import uk.ac.tees.mad.D3933743.ui.theme.Login.compose.RegisterScreen
 import uk.ac.tees.mad.D3933743.ui.theme.QuickTutorTheme
 import uk.ac.tees.mad.D3933743.ui.theme.all_tutors.compose.AllTutorsHome
 import uk.ac.tees.mad.D3933743.ui.theme.all_tutors.compose.SelectedTutor
-import uk.ac.tees.mad.D3933743.ui.theme.all_tutors.data.TutorDetails
 import uk.ac.tees.mad.D3933743.ui.theme.home.compose.HomeScreen
 import uk.ac.tees.mad.D3933743.ui.theme.profile.compose.ProfileScreen
 import uk.ac.tees.mad.D3933743.ui.theme.splash.SplashScreen
@@ -92,41 +93,16 @@ fun MainScreen() {
                         startDestination = "AllTutorsHome"
                     ) {
                         composable(route = "AllTutorsHome") {
-                            AllTutorsHome(
-                                navController, listOf(
-                                    TutorDetails(
-                                        "Lady Margaret's",
-                                        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Lady_Margaret_Beaufort_from_NPG.jpg/956px-Lady_Margaret_Beaufort_from_NPG.jpg",
-                                        "Portrait of Margaret Beaufort (1443-1509) dressed as a widow, mother of Henry VII of England. The portrait features the coat of arms of the House of Beaufort, and the words \"souvent me souvient\", Medieval French for \"think of me often\", now used as the motto of Lady Margaret Hall, Oxford, Christ's College, Cambridge and St John's College, Cambridge.",
-                                        "Divinity"
-
-                                    ),
-                                    TutorDetails(
-                                        "Lady Margaret's",
-                                        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Lady_Margaret_Beaufort_from_NPG.jpg/956px-Lady_Margaret_Beaufort_from_NPG.jpg",
-                                        "Portrait of Margaret Beaufort (1443-1509) dressed as a widow, mother of Henry VII of England. The portrait features the coat of arms of the House of Beaufort, and the words \"souvent me souvient\", Medieval French for \"think of me often\", now used as the motto of Lady Margaret Hall, Oxford, Christ's College, Cambridge and St John's College, Cambridge.",
-                                        "Divinity"
-
-                                    ),
-                                    TutorDetails(
-                                        "Lady Margaret's",
-                                        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Lady_Margaret_Beaufort_from_NPG.jpg/956px-Lady_Margaret_Beaufort_from_NPG.jpg",
-                                        "Portrait of Margaret Beaufort (1443-1509) dressed as a widow, mother of Henry VII of England. The portrait features the coat of arms of the House of Beaufort, and the words \"souvent me souvient\", Medieval French for \"think of me often\", now used as the motto of Lady Margaret Hall, Oxford, Christ's College, Cambridge and St John's College, Cambridge.",
-                                        "Divinity"
-
-                                    ),
-                                    TutorDetails(
-                                        "Lady Margaret's",
-                                        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Lady_Margaret_Beaufort_from_NPG.jpg/956px-Lady_Margaret_Beaufort_from_NPG.jpg",
-                                        "Portrait of Margaret Beaufort (1443-1509) dressed as a widow, mother of Henry VII of England. The portrait features the coat of arms of the House of Beaufort, and the words \"souvent me souvient\", Medieval French for \"think of me often\", now used as the motto of Lady Margaret Hall, Oxford, Christ's College, Cambridge and St John's College, Cambridge.",
-                                        "Divinity"
-
-                                    )
-                                )
-                            )
+                            AllTutorsHome(navController)
                         }
-                        composable(route = "TutorDetails") {
-                            SelectedTutor(navController)
+                        composable(route = "TutorDetails/{tutorId}",
+                            arguments = listOf(navArgument("tutorId") { type = NavType.StringType })
+                        )
+                        { backStackEntry ->
+                            SelectedTutor(
+                                navController,
+                                backStackEntry.arguments?.getString("tutorId") ?: ""
+                            )
                         }
                     }
                 }

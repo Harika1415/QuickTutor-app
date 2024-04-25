@@ -8,6 +8,7 @@ android {
     namespace = "uk.ac.tees.mad.D3933743"
     compileSdk = 34
 
+
     defaultConfig {
         applicationId = "uk.ac.tees.mad.D3933743"
         minSdk = 28
@@ -75,4 +76,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation (libs.androidx.activity.ktx)
     implementation(libs.firebase.storage)
+    implementation (libs.maps.ktx)
+    implementation (libs.maps.compose)
+    implementation (libs.play.services.maps)
+    implementation (libs.play.services.location)
 }

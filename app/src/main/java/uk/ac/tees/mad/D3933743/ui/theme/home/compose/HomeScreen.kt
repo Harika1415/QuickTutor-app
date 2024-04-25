@@ -14,6 +14,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,16 +29,18 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import uk.ac.tees.mad.D3933743.R
+import uk.ac.tees.mad.D3933743.ui.theme.home.data.Tutor
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
 @Composable
-fun HomeScreen(navController: NavController? = null) {
+fun HomeScreen(navController: NavController) {
 
     var shouldShowLoader by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
 
     var firebaseAuth by remember {
@@ -47,23 +50,55 @@ fun HomeScreen(navController: NavController? = null) {
         mutableStateOf<FirebaseUser?>(null)
     }
 
-    var context = LocalContext.current
+    var firebaseFireStore by remember {
+        mutableStateOf<FirebaseFirestore?>(null)
+    }
+
+    val tutorListState = remember {
+        mutableStateListOf<Tutor>()
+    }
+
+
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         shouldShowLoader = true
         firebaseAuth = Firebase.auth
         currentUser = firebaseAuth?.currentUser
-        if(currentUser != null) {
-            shouldShowLoader = false
+        firebaseFireStore = Firebase.firestore
+        if (currentUser != null) {
 
-            if(currentUser?.displayName.isNullOrEmpty() || currentUser?.photoUrl?.toString().isNullOrEmpty() ) {
-                Toast.makeText(context,"Add profile Information", Toast.LENGTH_SHORT).show()
-                navController?.navigate("ProfileScreen")
+
+            if (currentUser?.displayName.isNullOrEmpty() || currentUser?.photoUrl?.toString()
+                    .isNullOrEmpty()
+            ) {
+                shouldShowLoader = false
+                Toast.makeText(context, "Add profile Information", Toast.LENGTH_SHORT).show()
+                navController.navigate("ProfileScreen")
             }
+
+            firebaseFireStore?.collection("tutors")?.get()?.addOnCompleteListener { task ->
+                if (task.isSuccessful && task.result.documents.isNotEmpty()) {
+
+                    for (document in task.result.documents) {
+                        if (document.exists()) {
+                            val tutor = document.toObject(Tutor::class.java)
+                            if (tutor != null) {
+                                tutorListState.add(tutor)
+                            }
+                        }
+                    }
+                    shouldShowLoader = false
+
+                } else {
+                    shouldShowLoader = false
+                }
+            }
+
 
         } else {
             shouldShowLoader = false
-            navController?.navigate("Login")
+            navController.navigate("Login")
         }
     }
 
@@ -75,7 +110,7 @@ fun HomeScreen(navController: NavController? = null) {
                 actions = {
                     Icon(
                         modifier = Modifier.clickable {
-                            navController?.navigate("ProfileScreen")
+                            navController.navigate("ProfileScreen")
                         },
                         tint = colorResource(id = R.color.white),
                         painter = painterResource(id = R.drawable.profile),
@@ -108,8 +143,12 @@ fun HomeScreen(navController: NavController? = null) {
                 ),
                 fontSize = 16.sp
             )
-            RecommendedTutors(navController)
-            AllTutors(navController)
+            RecommendedTutors(navController,
+                tutorListState.toList().filterIndexed { index, _ ->
+                    index % 2 == 0
+                }
+            )
+            AllTutors(navController, tutorListState.toList())
         }
     }
 }

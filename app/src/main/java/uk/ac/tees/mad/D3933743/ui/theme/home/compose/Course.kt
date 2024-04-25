@@ -37,10 +37,7 @@ fun MyCourses(
 
 
     Column {
-
-   
-
-        HorizontalPager(state = pagerState, pageSize = PageSize.Fixed(250.dp)) { page ->
+        HorizontalPager(state = pagerState, pageSize = PageSize.Fixed(230.dp)) { page ->
             MyCourseItem(list[page])
         }
     }

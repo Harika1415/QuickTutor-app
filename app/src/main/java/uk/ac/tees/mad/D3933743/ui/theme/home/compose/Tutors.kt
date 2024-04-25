@@ -28,38 +28,32 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import uk.ac.tees.mad.D3933743.R
-import uk.ac.tees.mad.D3933743.ui.theme.home.data.MyCourseData
+import uk.ac.tees.mad.D3933743.ui.theme.home.data.Tutor
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RecommendedTutors(
-    navController: NavController?,
-    list: List<MyCourseData> = listOf(
-        MyCourseData("Title", "Desc", "Name", "id", "duration", true, "4.5"),
-        MyCourseData("Title", "Desc", "Name", "id", "duration", true, "4.5"),
-        MyCourseData("Title", "Desc", "Name", "id", "duration", true, "4.5"),
-        MyCourseData("Title", "Desc", "Name", "id", "duration", true, "4.5")
-    )
+    navController: NavController,
+    list: List<Tutor>
 ) {
 
     val pagerState = rememberPagerState(pageCount = {
-        4
+        list.size
     })
 
     HorizontalPager(state = pagerState, pageSize = PageSize.Fixed(250.dp)) { page ->
-        RecommendedTutorItem()
+        RecommendedTutorItem(list[page],navController)
     }
 }
 
 
 @Composable
-@Preview(showBackground = true)
-fun RecommendedTutorItem() {
+fun RecommendedTutorItem(tutor: Tutor, navController: NavController) {
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -70,15 +64,14 @@ fun RecommendedTutorItem() {
                     modifier = Modifier
                         .size(50.dp, 50.dp)
                         .align(Alignment.CenterVertically),
-                    painter = painterResource(
-                        id = R.drawable.ic_launcher_background
-                    ),
+                    painter = rememberAsyncImagePainter(tutor.profileUrl),
                     contentDescription = "Tutor Image"
                 )
                 Column(modifier = Modifier.padding(start = 16.dp)) {
-                    Text(text = "Tutor Name", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text(text = "Bio", fontSize = 8.sp)
-                    Text(text = "Expert In", fontSize = 8.sp)
+                    Text(text = tutor.name?:"", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(text = tutor.bio?:"", fontSize = 8.sp, lineHeight = 10.sp,
+                        maxLines = 4,
+                        modifier = Modifier.padding(top = 8.dp))
                 }
             }
 
@@ -87,7 +80,10 @@ fun RecommendedTutorItem() {
                     .align(Alignment.End)
                     .padding(top = 16.dp)
                     .height(30.dp),
-                onClick = { }) {
+                onClick = {
+                    navController.navigate("TutorDetails/${tutor.id}")
+
+                }) {
                 Text(text = "View Details", fontSize = 10.sp)
             }
         }
@@ -96,58 +92,64 @@ fun RecommendedTutorItem() {
 
 
 @Composable
-@Preview
-fun AllTutors(navController: NavController? = null) {
+fun AllTutors(navController: NavController, tutorList: List<Tutor>) {
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape = RoundedCornerShape(35.dp, 35.dp, 0.dp, 0.dp))
-    ) {
+    if (tutorList.isNotEmpty()) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth().padding(top = 16.dp)
+                .clip(shape = RoundedCornerShape(35.dp, 35.dp, 0.dp, 0.dp))
+        ) {
 
 
-        Card(shape = RectangleShape) {
+            Card(shape = RectangleShape) {
+                Column {
+                    Text(
+                        text = "See All Tutors",
+                        textAlign = TextAlign.End,
+                        color = Color.Blue,
+                        modifier = Modifier
+                            .padding(top = 16.dp, bottom = 12.dp, end = 20.dp)
+                            .fillMaxWidth()
+                            .clickable {
+                                navController.navigate("AllTutors")
+                            }
 
-            Column {
-
-                Text(
-                    text = "See All Tutors",
-                    textAlign = TextAlign.End,
-                    color = Color.Blue,
-                    modifier = Modifier
-                        .padding(top = 8.dp, end = 20.dp)
-                        .fillMaxWidth()
-                        .clickable {
-                            navController?.navigate("AllTutors")
-                        }
-
-                )
-                LazyColumn {
-                    items(10) {
-                        ElevatedCard(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Column(modifier = Modifier.padding(6.dp)) {
-                                Row {
-                                    Image(
-                                        modifier = Modifier
-                                            .size(50.dp, 50.dp)
-                                            .align(Alignment.CenterVertically),
-                                        painter = painterResource(
-                                            id = R.drawable.ic_launcher_background
-                                        ),
-                                        contentDescription = "Tutor Image"
-                                    )
-                                    Column(modifier = Modifier.padding(start = 16.dp)) {
-                                        Text(
-                                            text = "Tutor Name",
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Bold
+                    )
+                    LazyColumn(userScrollEnabled = false) {
+                        items(10) { index ->
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(6.dp)) {
+                                    Row {
+                                        Image(
+                                            modifier = Modifier
+                                                .size(50.dp, 50.dp)
+                                                .align(Alignment.CenterVertically),
+                                            painter =
+                                            if (tutorList[index].profileUrl != null) {
+                                                rememberAsyncImagePainter(tutorList[index].profileUrl)
+                                            } else
+                                                painterResource(id = R.drawable.ic_launcher_background),
+                                            contentDescription = "Tutor Image"
                                         )
-                                        Text(text = "Bio", fontSize = 8.sp)
-                                        Text(text = "Expert In", fontSize = 8.sp)
+                                        Column(modifier = Modifier.padding(start = 16.dp)) {
+                                            Text(
+                                                text = tutorList[index].name!!,
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(text = tutorList[index].bio!!, fontSize = 12.sp,
+                                                lineHeight = 10.sp)
+                                            Text(
+                                                text = "Expert In : ${tutorList[index].subjects}",
+                                                fontSize = 8.sp
+                                            )
+                                        }
                                     }
                                 }
                             }
