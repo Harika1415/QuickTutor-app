@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -75,99 +76,112 @@ fun RegisterScreen(navController: NavController? = null) {
         firebaseAuth = Firebase.auth
     }
 
-    Surface(
-        color = Color.White,
-        modifier = Modifier.fillMaxSize()
-    ) {
 
-        Column {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(id = R.color.teal_200),
-                    titleContentColor = colorResource(id = R.color.white),
-                    actionIconContentColor = colorResource(id = R.color.white),
-                    navigationIconContentColor = colorResource(id = R.color.white)
-                ),
-                windowInsets = WindowInsets(top = 0.dp),
-                title = {
-                    Text(text = "Register", modifier = Modifier.padding(start = 16.dp))
-                })
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Login Image",
-                    modifier = Modifier.size(120.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Register",
+    if (shouldShowLoader) {
 
-                    )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Username") },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.profile),
-                            contentDescription = "Username Icon"
-                        )
-                    }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.profile),
-                            contentDescription = "Password Icon"
-                        )
-                    }
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        shouldShowLoader = true
-                        firebaseAuth?.createUserWithEmailAndPassword(username, password)
-                            ?.addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    shouldShowLoader = false
-                                    navController?.navigate("HomeScreen")
-                                } else {
-                                    shouldShowLoader = false
-                                    Toast.makeText(
-                                        context, "Login failed  ${task.exception?.message}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                ) {
-                    Text("Register")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(30.dp))
+        }
+    } else {
 
-                Text(text = "Already Registered?", modifier = Modifier
-                    .weight(1f)
-                    .clickable {
-                        navController?.popBackStack()
+        Surface(
+            color = Color.White,
+            modifier = Modifier.fillMaxSize()
+        ) {
+
+            Column {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = colorResource(id = R.color.teal_200),
+                        titleContentColor = colorResource(id = R.color.white),
+                        actionIconContentColor = colorResource(id = R.color.white),
+                        navigationIconContentColor = colorResource(id = R.color.white)
+                    ),
+                    windowInsets = WindowInsets(top = 0.dp),
+                    title = {
+                        Text(text = "Register", modifier = Modifier.padding(start = 16.dp))
                     })
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Login Image",
+                        modifier = Modifier.size(120.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Register",
 
+                        )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        label = { Text("Username") },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.profile),
+                                contentDescription = "Username Icon"
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Password") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.profile),
+                                contentDescription = "Password Icon"
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            shouldShowLoader = true
+                            firebaseAuth?.createUserWithEmailAndPassword(username, password)
+                                ?.addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        shouldShowLoader = false
+                                        navController?.navigate("HomeScreen")
+                                    } else {
+                                        shouldShowLoader = false
+                                        Toast.makeText(
+                                            context, "Login failed  ${task.exception?.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        Text("Register")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(text = "Already Registered?", modifier = Modifier
+                        .weight(1f)
+                        .clickable {
+                            navController?.popBackStack()
+                        })
+
+                }
             }
         }
     }

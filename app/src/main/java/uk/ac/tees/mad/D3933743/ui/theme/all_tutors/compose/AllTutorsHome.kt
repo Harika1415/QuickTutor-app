@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +41,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import uk.ac.tees.mad.D3933743.R
 import uk.ac.tees.mad.D3933743.ui.theme.home.data.Tutor
+import uk.ac.tees.mad.D3933743.ui.theme.users.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +66,13 @@ fun AllTutorsHome(navController: NavController) {
         mutableStateListOf<Tutor>()
     }
 
+    val bookmarkedCourse = remember {
+        mutableStateOf<User?>(null)
+    }
+
+    var shouldShowBookmarked by remember {
+        mutableStateOf(false)
+    }
 
 
     LaunchedEffect(Unit) {
@@ -89,11 +99,35 @@ fun AllTutorsHome(navController: NavController) {
                 shouldShowLoader = false
             }
         }
+
+        firebaseFireStore?.collection("users")?.document(currentUser?.uid?:"")?.get()?.addOnCompleteListener { task->
+            if(task.isSuccessful && task.result.exists()) {
+                bookmarkedCourse.value = task.result.toObject(User::class.java)
+            }
+        }
     }
 
     Column(modifier = Modifier.background(color = colorResource(id = R.color.white))) {
 
-        TopAppBar(title = {
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = colorResource(id = R.color.teal_200),
+                titleContentColor = colorResource(id = R.color.white),
+                actionIconContentColor = colorResource(id = R.color.white),
+                navigationIconContentColor = colorResource(id = R.color.white)
+            ),
+            actions = {
+                Icon(
+                    modifier = Modifier.clickable {
+                        shouldShowBookmarked = !shouldShowBookmarked
+                    },
+                    tint = if(shouldShowBookmarked) colorResource(id = R.color.white) else Color.Gray,
+                    painter = painterResource(id = R.drawable.baseline_bookmarks_24),
+                    contentDescription = "Bookmarks"
+                )
+            },
+
+            title = {
             Text(text = "Tutors", modifier = Modifier.padding(start = 16.dp))
         },
             windowInsets = WindowInsets(top = 0.dp),
@@ -111,37 +145,41 @@ fun AllTutorsHome(navController: NavController) {
 
         LazyColumn {
             items(tutorListState.size) { index ->
-                ElevatedCard(
-                    modifier = Modifier
-                        .clickable {
-                            navController.navigate("TutorDetails/${tutorListState[index].id}")
-                        }
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(6.dp)) {
-                        Row {
-                            Image(
-                                modifier = Modifier
-                                    .size(50.dp, 50.dp)
-                                    .align(Alignment.CenterVertically),
-                                painter = rememberAsyncImagePainter(tutorListState[index].profileUrl),
-                                contentDescription = "Tutor Image"
-                            )
-                            Column(modifier = Modifier.padding(start = 16.dp)) {
-                                Text(
-                                    text = tutorListState[index].name!!,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold
+                if((shouldShowBookmarked && bookmarkedCourse.value?.bookmarks?.contains(tutorListState[index].id) == true) || !shouldShowBookmarked)  {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .clickable {
+                                navController.navigate("TutorDetails/${tutorListState[index].id}")
+                            }
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(6.dp)) {
+                            Row {
+                                Image(
+                                    modifier = Modifier
+                                        .size(50.dp, 50.dp)
+                                        .align(Alignment.CenterVertically),
+                                    painter = rememberAsyncImagePainter(tutorListState[index].profileUrl),
+                                    contentDescription = "Tutor Image"
                                 )
-                                Text(text = tutorListState[index].bio!!, fontSize = 8.sp)
-                                Text(text = "Expert in : ${tutorListState[index].subjects!!}", fontSize = 8.sp)
+                                Column(modifier = Modifier.padding(start = 16.dp)) {
+                                    Text(
+                                        text = tutorListState[index].name!!,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(text = tutorListState[index].bio!!, fontSize = 8.sp)
+                                    Text(text = "Expert in : ${tutorListState[index].subjects!!}", fontSize = 8.sp)
+                                }
                             }
                         }
                     }
                 }
+
             }
         }
     }
 }
+
 

@@ -24,8 +24,10 @@ import uk.ac.tees.mad.D3933743.ui.theme.QuickTutorTheme
 import uk.ac.tees.mad.D3933743.ui.theme.all_tutors.compose.AllTutorsHome
 import uk.ac.tees.mad.D3933743.ui.theme.all_tutors.compose.SelectedTutor
 import uk.ac.tees.mad.D3933743.ui.theme.home.compose.HomeScreen
+import uk.ac.tees.mad.D3933743.ui.theme.home.compose.MyCourses
 import uk.ac.tees.mad.D3933743.ui.theme.profile.compose.ProfileScreen
 import uk.ac.tees.mad.D3933743.ui.theme.splash.SplashScreen
+import uk.ac.tees.mad.D3933743.ui.theme.users.AllMyCourses
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +35,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
 
-            QuickTutorTheme {
+            QuickTutorTheme(darkTheme = false) {
                 MainScreen()
             }
         }
@@ -86,6 +88,10 @@ fun MainScreen() {
 
                     composable(route = "ProfileScreen") {
                         ProfileScreen(navController)
+                    }
+
+                    composable(route = "MyCourses") {
+                        AllMyCourses(navController)
                     }
 
                     navigation(

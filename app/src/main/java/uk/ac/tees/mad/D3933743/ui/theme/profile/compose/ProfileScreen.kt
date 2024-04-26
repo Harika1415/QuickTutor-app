@@ -1,5 +1,7 @@
 package uk.ac.tees.mad.D3933743.ui.theme.profile.compose
 
+import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -7,13 +9,19 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,20 +43,27 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
-import coil.compose.AsyncImage
+import androidx.viewbinding.BuildConfig
 import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import coil.request.ImageResult
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import uk.ac.tees.mad.D3933743.R
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Objects
+import java.util.jar.Manifest
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +71,15 @@ import uk.ac.tees.mad.D3933743.R
 fun ProfileScreen(navController: NavHostController? = null) {
 
     var userName by remember {
+        mutableStateOf("")
+    }
+
+    var oldPassword by remember {
+        mutableStateOf("")
+    }
+
+
+    var password by remember {
         mutableStateOf("")
     }
 
@@ -76,6 +100,10 @@ fun ProfileScreen(navController: NavHostController? = null) {
         mutableStateOf<FirebaseAuth?>(null)
     }
 
+    var shouldShowResetPasswordEditText by remember {
+        mutableStateOf(false)
+    }
+
     var shouldShowLoader by remember {
         mutableStateOf(false)
     }
@@ -88,9 +116,41 @@ fun ProfileScreen(navController: NavHostController? = null) {
         mutableStateOf<StorageReference?>(null)
     }
 
-    val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+
+    val file = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        "uk.ac.tees.mad.D3933743" + ".provider", file
+    )
+
+    var capturedImageUri by remember {
+        mutableStateOf<Uri>(Uri.EMPTY)
+    }
+
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            capturedImageUri = uri
             profileImageUrl = uri?.toString()
+        }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            cameraLauncher.launch(uri)
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri1 ->
+            profileImageUrl = uri1?.toString()
         }
 
     LaunchedEffect(userName, profileImageUrl, oldProfileUrl, oldUserName) {
@@ -117,11 +177,60 @@ fun ProfileScreen(navController: NavHostController? = null) {
     }
 
     if (shouldShowLoader) {
-        CircularProgressIndicator()
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(30.dp))
+        }
     } else {
 
 
-        Column() {
+        Column {
+
+            if (showDialog) {
+                Dialog(
+                    onDismissRequest = {
+                        showDialog = false
+                    }) {
+                    Card(modifier = Modifier.padding(32.dp)) {
+                        Row(
+                            modifier = Modifier.padding(32.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+
+                                modifier = Modifier.clickable {
+                                    showDialog = false
+                                    val permissionCheckResult =
+                                        ContextCompat.checkSelfPermission(context,android.Manifest.permission.CAMERA)
+                                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                                        cameraLauncher.launch(uri)
+                                    } else {
+                                        permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                                    }
+                                }.padding(16.dp),
+                                painter = painterResource(id = R.drawable.baseline_camera_alt_24),
+                                contentDescription = "Camera"
+                            )
+                            Image(
+                                modifier = Modifier.clickable {
+                                    showDialog = false
+                                    launcher.launch(
+                                        PickVisualMediaRequest(
+                                            mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                                        )
+                                    )
+                                }.padding(16.dp),
+                                painter = painterResource(id = R.drawable.baseline_add_a_photo_24),
+                                contentDescription = "Gallery"
+                            )
+                        }
+                    }
+                }
+            }
 
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -153,11 +262,7 @@ fun ProfileScreen(navController: NavHostController? = null) {
                         .size(125.dp, 125.dp)
                         .align(Alignment.CenterHorizontally)
                         .clickable {
-                            launcher.launch(
-                                PickVisualMediaRequest(
-                                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-                                )
-                            )
+                            showDialog = true
                         },
                     painter =
                     if (profileImageUrl != null)
@@ -244,9 +349,93 @@ fun ProfileScreen(navController: NavHostController? = null) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 12.dp),
-                    onClick = { }) {
+                    onClick = {
+                        navController?.navigate("MyCourses")
+                    }) {
+                    Text(text = "My Courses")
+                }
+
+                if (shouldShowResetPasswordEditText) {
+
+
+                    TextField(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxWidth(),
+                        value = oldPassword, onValueChange = { value ->
+                            oldPassword = value
+                        },
+                        placeholder = {
+                            Text(text = "Enter Old Password")
+                        })
+
+                    TextField(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxWidth(),
+                        value = password, onValueChange = { value ->
+                            password = value
+                        },
+                        placeholder = {
+                            Text(text = "Enter new Password")
+                        })
+
+
+                }
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    enabled = !shouldShowResetPasswordEditText || (password.length >= 6 && oldPassword.length >= 6),
+                    onClick = {
+
+                        if (shouldShowResetPasswordEditText) {
+                            shouldShowLoader = true
+                            val credential = EmailAuthProvider
+                                .getCredential(firebaseAuth?.currentUser?.email ?: "", oldPassword)
+                            firebaseAuth?.currentUser?.reauthenticate(credential)
+                                ?.addOnCompleteListener { tas ->
+                                    if (tas.isSuccessful) {
+                                        firebaseAuth?.currentUser?.updatePassword(password)
+                                            ?.addOnCompleteListener { task ->
+                                                shouldShowLoader = false
+                                                if (task.isSuccessful) {
+                                                    firebaseAuth?.signOut()
+                                                    navController?.navigate("Login")
+                                                    password = ""
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Password updated Successfully",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                } else {
+                                                    password = ""
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Password update got failed" + task.exception?.message,
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+                                    } else {
+                                        shouldShowLoader = false
+                                        Toast.makeText(
+                                            context,
+                                            "Invalid Old password",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+
+                        } else {
+                            shouldShowResetPasswordEditText = true
+                        }
+
+                    }) {
                     Text(text = "Change Password")
                 }
+
 
                 Button(
                     modifier = Modifier
@@ -261,4 +450,15 @@ fun ProfileScreen(navController: NavHostController? = null) {
             }
         }
     }
+}
+
+fun Context.createImageFile(): File {
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    val imageFileName = "JPEG_" + timeStamp + "_"
+    val image = File.createTempFile(
+        imageFileName,
+        ".jpg",
+        externalCacheDir
+    )
+    return image
 }

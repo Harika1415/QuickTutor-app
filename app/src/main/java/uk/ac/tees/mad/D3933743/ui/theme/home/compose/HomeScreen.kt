@@ -2,9 +2,12 @@ package uk.ac.tees.mad.D3933743.ui.theme.home.compose
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -18,6 +21,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -34,6 +38,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import uk.ac.tees.mad.D3933743.R
 import uk.ac.tees.mad.D3933743.ui.theme.home.data.Tutor
+import uk.ac.tees.mad.D3933743.ui.theme.users.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +63,9 @@ fun HomeScreen(navController: NavController) {
         mutableStateListOf<Tutor>()
     }
 
+    var userCourses by remember {
+        mutableStateOf<User?>(null)
+    }
 
     val context = LocalContext.current
 
@@ -95,6 +103,15 @@ fun HomeScreen(navController: NavController) {
                 }
             }
 
+            firebaseFireStore?.collection("users")
+                ?.document(currentUser?.uid ?: "")?.get()?.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        if (task.result.exists()) {
+                            userCourses = task.result.toObject(User::class.java)
+                        }
+                    }
+                }
+
 
         } else {
             shouldShowLoader = false
@@ -103,7 +120,14 @@ fun HomeScreen(navController: NavController) {
     }
 
     if (shouldShowLoader) {
-        CircularProgressIndicator()
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(30.dp))
+        }
     } else {
         Column {
             TopAppBar(
@@ -135,7 +159,7 @@ fun HomeScreen(navController: NavController) {
                 ),
                 fontSize = 16.sp
             )
-            MyCourses(navController)
+            MyCourses(userCourses)
             Text(
                 text = "Recommended Tutors", modifier = Modifier.padding(
                     top = 16.dp,
