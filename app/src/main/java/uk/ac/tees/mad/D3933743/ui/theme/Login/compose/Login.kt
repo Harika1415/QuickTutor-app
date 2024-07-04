@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,10 +42,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -101,17 +105,7 @@ fun LoginScreen(navController: NavController? = null) {
             modifier = Modifier.fillMaxSize()
         ) {
             Column {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = colorResource(id = R.color.teal_200),
-                        titleContentColor = colorResource(id = R.color.white),
-                        actionIconContentColor = colorResource(id = R.color.white),
-                        navigationIconContentColor = colorResource(id = R.color.white)
-                    ),
-                    windowInsets = WindowInsets(top = 0.dp),
-                    title = {
-                        Text(text = "Login", modifier = Modifier.padding(start = 16.dp))
-                    })
+
 
                 Column(
                     modifier = Modifier
@@ -128,8 +122,9 @@ fun LoginScreen(navController: NavController? = null) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Login",
-
-                        )
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(
                         value = username,
@@ -139,7 +134,7 @@ fun LoginScreen(navController: NavController? = null) {
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(
-                            onNext = {focusRequester.requestFocus()}
+                            onNext = { focusRequester.requestFocus() }
                         ),
 
 
@@ -158,13 +153,15 @@ fun LoginScreen(navController: NavController? = null) {
 
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(
-                            onNext = {keyboardController?.hide()}
+                            onNext = { keyboardController?.hide() }
                         ),
                         visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
                         leadingIcon = {
                             Icon(
-                                painter = painterResource(id = R.drawable.profile),
+                                imageVector = Icons.Default.Lock,
                                 contentDescription = "Password Icon"
                             )
                         }
