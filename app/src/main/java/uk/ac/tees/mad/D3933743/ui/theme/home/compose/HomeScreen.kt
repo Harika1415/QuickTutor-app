@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -132,14 +134,13 @@ fun HomeScreen(navController: NavController) {
         Column {
             TopAppBar(
                 actions = {
-                    Icon(
-                        modifier = Modifier.clickable {
-                            navController.navigate("ProfileScreen")
-                        },
-                        tint = colorResource(id = R.color.white),
-                        painter = painterResource(id = R.drawable.profile),
-                        contentDescription = "Profile"
-                    )
+                    IconButton(onClick = { navController.navigate("ProfileScreen") }) {
+                        Icon(
+                            tint = colorResource(id = R.color.white),
+                            painter = painterResource(id = R.drawable.profile),
+                            contentDescription = "Profile"
+                        )
+                    }
                 },
                 modifier = Modifier.padding(start = 0.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -154,10 +155,11 @@ fun HomeScreen(navController: NavController) {
 
             Text(
                 text = "My Courses", modifier = Modifier.padding(
-                    top = 8.dp,
+                    top = 16.dp,
                     start = 16.dp
                 ),
-                fontSize = 16.sp
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
             MyCourses(userCourses)
             Text(
@@ -165,7 +167,8 @@ fun HomeScreen(navController: NavController) {
                     top = 16.dp,
                     start = 16.dp
                 ),
-                fontSize = 16.sp
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
             RecommendedTutors(navController,
                 tutorListState.toList().filterIndexed { index, _ ->

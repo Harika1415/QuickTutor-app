@@ -6,10 +6,6 @@ import android.widget.Toast
 
 
 object Utils {
-    fun getScreenNameFromRoute(screenName: String) {
-
-    }
-
     fun emailValidator(email: String): Boolean {
         return (email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches())
     }

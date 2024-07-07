@@ -35,10 +35,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -93,95 +95,94 @@ fun RegisterScreen(navController: NavController? = null) {
             modifier = Modifier.fillMaxSize()
         ) {
 
-            Column {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = colorResource(id = R.color.teal_200),
-                        titleContentColor = colorResource(id = R.color.white),
-                        actionIconContentColor = colorResource(id = R.color.white),
-                        navigationIconContentColor = colorResource(id = R.color.white)
-                    ),
-                    windowInsets = WindowInsets(top = 0.dp),
-                    title = {
-                        Text(text = "Register", modifier = Modifier.padding(start = 16.dp))
-                    })
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Login Image",
-                        modifier = Modifier.size(120.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Register",
-
+//                TopAppBar(
+//                    colors = TopAppBarDefaults.topAppBarColors(
+//                        containerColor = colorResource(id = R.color.teal_200),
+//                        titleContentColor = colorResource(id = R.color.white),
+//                        actionIconContentColor = colorResource(id = R.color.white),
+//                        navigationIconContentColor = colorResource(id = R.color.white)
+//                    ),
+//                    windowInsets = WindowInsets(top = 0.dp),
+//                    title = {
+//                        Text(text = "Register", modifier = Modifier.padding(start = 16.dp))
+//                    })
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Login Image",
+                    modifier = Modifier.size(120.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Register",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Username") },
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.profile),
+                            contentDescription = "Username Icon"
                         )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        label = { Text("Username") },
-                        modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.profile),
-                                contentDescription = "Username Icon"
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.profile),
-                                contentDescription = "Password Icon"
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = {
-                            shouldShowLoader = true
-                            firebaseAuth?.createUserWithEmailAndPassword(username, password)
-                                ?.addOnCompleteListener { task ->
-                                    if (task.isSuccessful) {
-                                        shouldShowLoader = false
-                                        navController?.navigate("HomeScreen")
-                                    } else {
-                                        shouldShowLoader = false
-                                        Toast.makeText(
-                                            context, "Login failed  ${task.exception?.message}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                    ) {
-                        Text("Register")
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.profile),
+                            contentDescription = "Password Icon"
+                        )
+                    }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        shouldShowLoader = true
+                        firebaseAuth?.createUserWithEmailAndPassword(username, password)
+                            ?.addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    shouldShowLoader = false
+                                    navController?.navigate("HomeScreen")
+                                } else {
+                                    shouldShowLoader = false
+                                    Toast.makeText(
+                                        context, "Login failed  ${task.exception?.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+                    Text("Register")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(text = "Already Registered?", modifier = Modifier
-                        .weight(1f)
+                Text(text = "Already Registered?",
+                    modifier = Modifier
                         .clickable {
                             navController?.popBackStack()
-                        })
-
-                }
+                        }
+                )
             }
         }
     }

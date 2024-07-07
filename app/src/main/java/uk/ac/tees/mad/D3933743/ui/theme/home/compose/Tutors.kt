@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,7 +48,7 @@ fun RecommendedTutors(
     })
 
     HorizontalPager(state = pagerState, pageSize = PageSize.Fixed(250.dp)) { page ->
-        RecommendedTutorItem(list[page],navController)
+        RecommendedTutorItem(list[page], navController)
     }
 }
 
@@ -58,32 +59,36 @@ fun RecommendedTutorItem(tutor: Tutor, navController: NavController) {
         modifier = Modifier
             .padding(8.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Row {
                 Image(
                     modifier = Modifier
                         .size(50.dp, 50.dp)
                         .align(Alignment.CenterVertically),
                     painter = rememberAsyncImagePainter(tutor.profileUrl),
-                    contentDescription = "Tutor Image"
+                    contentDescription = "Tutor Image",
+                    contentScale = ContentScale.Crop
                 )
                 Column(modifier = Modifier.padding(start = 16.dp)) {
-                    Text(text = tutor.name?:"", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text(text = tutor.bio?:"", fontSize = 8.sp, lineHeight = 10.sp,
-                        maxLines = 4,
-                        modifier = Modifier.padding(top = 8.dp))
+                    Text(text = tutor.name ?: "", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = tutor.bio ?: "", fontSize = 12.sp, lineHeight = 12.sp,
+                        maxLines = 6,
+                        modifier = Modifier.padding(top = 6.dp)
+                    )
                 }
             }
 
             Button(
                 modifier = Modifier
-                    .align(Alignment.End)
                     .padding(top = 16.dp)
-                    .height(30.dp),
+                    .height(30.dp)
+                    .fillMaxWidth(),
                 onClick = {
                     navController.navigate("TutorDetails/${tutor.id}")
 
-                }) {
+                }
+            ) {
                 Text(text = "View Details", fontSize = 10.sp)
             }
         }
@@ -98,7 +103,8 @@ fun AllTutors(navController: NavController, tutorList: List<Tutor>) {
 
         Box(
             modifier = Modifier
-                .fillMaxWidth().padding(top = 16.dp)
+                .fillMaxWidth()
+                .padding(top = 16.dp)
                 .clip(shape = RoundedCornerShape(35.dp, 35.dp, 0.dp, 0.dp))
         ) {
 
@@ -124,7 +130,7 @@ fun AllTutors(navController: NavController, tutorList: List<Tutor>) {
                                     .padding(8.dp)
                                     .fillMaxWidth()
                             ) {
-                                Column(modifier = Modifier.padding(6.dp)) {
+                                Column(modifier = Modifier.padding(8.dp)) {
                                     Row {
                                         Image(
                                             modifier = Modifier
@@ -135,7 +141,8 @@ fun AllTutors(navController: NavController, tutorList: List<Tutor>) {
                                                 rememberAsyncImagePainter(tutorList[index].profileUrl)
                                             } else
                                                 painterResource(id = R.drawable.ic_launcher_background),
-                                            contentDescription = "Tutor Image"
+                                            contentDescription = "Tutor Image",
+                                            contentScale = ContentScale.Crop
                                         )
                                         Column(modifier = Modifier.padding(start = 16.dp)) {
                                             Text(
@@ -143,11 +150,13 @@ fun AllTutors(navController: NavController, tutorList: List<Tutor>) {
                                                 fontSize = 18.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
-                                            Text(text = tutorList[index].bio!!, fontSize = 12.sp,
-                                                lineHeight = 10.sp)
+                                            Text(
+                                                text = tutorList[index].bio!!, fontSize = 14.sp,
+                                                lineHeight = 14.sp
+                                            )
                                             Text(
                                                 text = "Expert In : ${tutorList[index].subjects}",
-                                                fontSize = 8.sp
+                                                fontSize = 12.sp
                                             )
                                         }
                                     }
