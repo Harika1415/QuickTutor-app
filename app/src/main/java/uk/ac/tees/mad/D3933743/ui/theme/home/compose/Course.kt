@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,7 +45,11 @@ fun MyCourses(
     } else {
 
         Column {
-            HorizontalPager(state = pagerState, pageSize = PageSize.Fixed(200.dp)) { page ->
+            HorizontalPager(
+                state = pagerState,
+                pageSize = PageSize.Fixed(200.dp),
+                pageSpacing = 12.dp
+            ) { page ->
                 MyCourseItem(list!!.course[page])
             }
         }
@@ -70,7 +75,8 @@ fun MyCourseItem(
                         .size(50.dp, 50.dp)
                         .align(Alignment.CenterVertically),
                     painter = rememberAsyncImagePainter(myCourseData?.tutorImage),
-                    contentDescription = "Tutor Image"
+                    contentDescription = "Tutor Image",
+                    contentScale = ContentScale.Crop
                 )
                 Column(modifier = Modifier.padding(start = 16.dp)) {
                     Text(
@@ -78,7 +84,7 @@ fun MyCourseItem(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Text(text = myCourseData.dateTime!!, fontSize = 8.sp)
+                    Text(text = myCourseData.dateTime!!, fontSize = 12.sp)
                 }
             }
         }

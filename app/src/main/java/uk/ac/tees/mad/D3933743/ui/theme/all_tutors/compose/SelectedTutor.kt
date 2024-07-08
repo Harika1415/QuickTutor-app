@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -219,6 +221,7 @@ fun SelectedTutor(navController: NavController? = null, tutorId: String) {
                                 modifier = Modifier
                                     .padding(top = 32.dp)
                                     .size(125.dp, 125.dp)
+                                    .clip(CircleShape)
                                     .align(Alignment.CenterHorizontally),
                                 painter =
                                 if (tutorState.value.profileUrl != null)
@@ -227,7 +230,8 @@ fun SelectedTutor(navController: NavController? = null, tutorId: String) {
                                     painterResource(
                                         id = R.drawable.ic_launcher_background
                                     ),
-                                contentDescription = "Tutor Image"
+                                contentDescription = "Tutor Image",
+                                contentScale = ContentScale.Crop
                             )
                             Text(
                                 text = tutorState.value.name ?: "",
@@ -507,7 +511,8 @@ fun SelectedTutor(navController: NavController? = null, tutorId: String) {
 
                                                 firebaseFireStore?.collection("users")
                                                     ?.document(currentUser?.uid ?: "")
-                                                    ?.set(course!!)?.addOnCompleteListener { task1 ->
+                                                    ?.set(course!!)
+                                                    ?.addOnCompleteListener { task1 ->
                                                         shouldShowLoader = false
                                                         if (task1.isSuccessful) {
                                                             alreadyBooked = true
@@ -660,11 +665,12 @@ fun MapScreen(latLng: LatLng) {
             .fillMaxSize()
     ) {
         GoogleMap(
-            uiSettings = MapUiSettings(scrollGesturesEnabled = false,
+            uiSettings = MapUiSettings(
+                scrollGesturesEnabled = false,
                 compassEnabled = false,
                 scrollGesturesEnabledDuringRotateOrZoom = false,
                 tiltGesturesEnabled = false
-                ),
+            ),
             cameraPositionState = cameraPositionState,
         ) {
             Marker(

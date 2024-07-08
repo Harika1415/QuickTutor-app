@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -100,11 +102,12 @@ fun AllTutorsHome(navController: NavController) {
             }
         }
 
-        firebaseFireStore?.collection("users")?.document(currentUser?.uid?:"")?.get()?.addOnCompleteListener { task->
-            if(task.isSuccessful && task.result.exists()) {
-                bookmarkedCourse.value = task.result.toObject(User::class.java)
+        firebaseFireStore?.collection("users")?.document(currentUser?.uid ?: "")?.get()
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful && task.result.exists()) {
+                    bookmarkedCourse.value = task.result.toObject(User::class.java)
+                }
             }
-        }
     }
 
     Column(modifier = Modifier.background(color = colorResource(id = R.color.white))) {
@@ -117,19 +120,18 @@ fun AllTutorsHome(navController: NavController) {
                 navigationIconContentColor = colorResource(id = R.color.white)
             ),
             actions = {
-                Icon(
-                    modifier = Modifier.clickable {
-                        shouldShowBookmarked = !shouldShowBookmarked
-                    },
-                    tint = if(shouldShowBookmarked) colorResource(id = R.color.white) else Color.Gray,
-                    painter = painterResource(id = R.drawable.baseline_bookmarks_24),
-                    contentDescription = "Bookmarks"
-                )
+                IconButton(onClick = { shouldShowBookmarked = !shouldShowBookmarked }) {
+                    Icon(
+                        tint = if (shouldShowBookmarked) colorResource(id = R.color.white) else Color.Gray,
+                        painter = painterResource(id = R.drawable.baseline_bookmarks_24),
+                        contentDescription = "Bookmarks"
+                    )
+                }
             },
 
             title = {
-            Text(text = "Tutors", modifier = Modifier.padding(start = 16.dp))
-        },
+                Text(text = "Tutors", modifier = Modifier.padding(start = 16.dp))
+            },
             windowInsets = WindowInsets(top = 0.dp),
             navigationIcon = {
                 Icon(
@@ -145,7 +147,10 @@ fun AllTutorsHome(navController: NavController) {
 
         LazyColumn {
             items(tutorListState.size) { index ->
-                if((shouldShowBookmarked && bookmarkedCourse.value?.bookmarks?.contains(tutorListState[index].id) == true) || !shouldShowBookmarked)  {
+                if ((shouldShowBookmarked && bookmarkedCourse.value?.bookmarks?.contains(
+                        tutorListState[index].id
+                    ) == true) || !shouldShowBookmarked
+                ) {
                     ElevatedCard(
                         modifier = Modifier
                             .clickable {
@@ -158,10 +163,11 @@ fun AllTutorsHome(navController: NavController) {
                             Row {
                                 Image(
                                     modifier = Modifier
-                                        .size(50.dp, 50.dp)
+                                        .size(50.dp, 80.dp)
                                         .align(Alignment.CenterVertically),
                                     painter = rememberAsyncImagePainter(tutorListState[index].profileUrl),
-                                    contentDescription = "Tutor Image"
+                                    contentDescription = "Tutor Image",
+                                    contentScale = ContentScale.Crop
                                 )
                                 Column(modifier = Modifier.padding(start = 16.dp)) {
                                     Text(
@@ -169,8 +175,15 @@ fun AllTutorsHome(navController: NavController) {
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold
                                     )
-                                    Text(text = tutorListState[index].bio!!, fontSize = 8.sp)
-                                    Text(text = "Expert in : ${tutorListState[index].subjects!!}", fontSize = 8.sp)
+                                    Text(
+                                        text = tutorListState[index].bio!!,
+                                        fontSize = 14.sp,
+                                        lineHeight = 14.sp
+                                    )
+                                    Text(
+                                        text = "Expert in : ${tutorListState[index].subjects!!}",
+                                        fontSize = 12.sp
+                                    )
                                 }
                             }
                         }
