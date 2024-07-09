@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,10 +22,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
@@ -202,28 +205,35 @@ fun ProfileScreen(navController: NavHostController? = null) {
                         ) {
                             Image(
 
-                                modifier = Modifier.clickable {
-                                    showDialog = false
-                                    val permissionCheckResult =
-                                        ContextCompat.checkSelfPermission(context,android.Manifest.permission.CAMERA)
-                                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                                        cameraLauncher.launch(uri)
-                                    } else {
-                                        permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                                modifier = Modifier
+                                    .clickable {
+                                        showDialog = false
+                                        val permissionCheckResult =
+                                            ContextCompat.checkSelfPermission(
+                                                context,
+                                                android.Manifest.permission.CAMERA
+                                            )
+                                        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                                            cameraLauncher.launch(uri)
+                                        } else {
+                                            permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                                        }
                                     }
-                                }.padding(16.dp),
+                                    .padding(16.dp),
                                 painter = painterResource(id = R.drawable.baseline_camera_alt_24),
                                 contentDescription = "Camera"
                             )
                             Image(
-                                modifier = Modifier.clickable {
-                                    showDialog = false
-                                    launcher.launch(
-                                        PickVisualMediaRequest(
-                                            mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                                modifier = Modifier
+                                    .clickable {
+                                        showDialog = false
+                                        launcher.launch(
+                                            PickVisualMediaRequest(
+                                                mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                                            )
                                         )
-                                    )
-                                }.padding(16.dp),
+                                    }
+                                    .padding(16.dp),
                                 painter = painterResource(id = R.drawable.baseline_add_a_photo_24),
                                 contentDescription = "Gallery"
                             )
@@ -355,88 +365,7 @@ fun ProfileScreen(navController: NavHostController? = null) {
                     Text(text = "My Courses")
                 }
 
-                if (shouldShowResetPasswordEditText) {
-
-
-                    TextField(
-                        modifier = Modifier
-                            .padding(top = 16.dp)
-                            .fillMaxWidth(),
-                        value = oldPassword, onValueChange = { value ->
-                            oldPassword = value
-                        },
-                        placeholder = {
-                            Text(text = "Enter Old Password")
-                        })
-
-                    TextField(
-                        modifier = Modifier
-                            .padding(top = 16.dp)
-                            .fillMaxWidth(),
-                        value = password, onValueChange = { value ->
-                            password = value
-                        },
-                        placeholder = {
-                            Text(text = "Enter new Password")
-                        })
-
-
-                }
-
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp),
-                    enabled = !shouldShowResetPasswordEditText || (password.length >= 6 && oldPassword.length >= 6),
-                    onClick = {
-
-                        if (shouldShowResetPasswordEditText) {
-                            shouldShowLoader = true
-                            val credential = EmailAuthProvider
-                                .getCredential(firebaseAuth?.currentUser?.email ?: "", oldPassword)
-                            firebaseAuth?.currentUser?.reauthenticate(credential)
-                                ?.addOnCompleteListener { tas ->
-                                    if (tas.isSuccessful) {
-                                        firebaseAuth?.currentUser?.updatePassword(password)
-                                            ?.addOnCompleteListener { task ->
-                                                shouldShowLoader = false
-                                                if (task.isSuccessful) {
-                                                    firebaseAuth?.signOut()
-                                                    navController?.navigate("Login")
-                                                    password = ""
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Password updated Successfully",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                } else {
-                                                    password = ""
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Password update got failed" + task.exception?.message,
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            }
-                                    } else {
-                                        shouldShowLoader = false
-                                        Toast.makeText(
-                                            context,
-                                            "Invalid Old password",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-
-                        } else {
-                            shouldShowResetPasswordEditText = true
-                        }
-
-                    }) {
-                    Text(text = "Change Password")
-                }
-
-
+                Spacer(modifier = Modifier.weight(1f))
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -444,7 +373,9 @@ fun ProfileScreen(navController: NavHostController? = null) {
                     onClick = {
                         firebaseAuth?.signOut()
                         navController?.navigate("Login")
-                    }) {
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
                     Text(text = "Logout")
                 }
             }
